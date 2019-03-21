@@ -1,20 +1,42 @@
 package br.usjt.filaChamados;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ListaChamadosActivity extends AppCompatActivity {
 
+    private ListView chamadosListView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_chamados);
+        chamadosListView = findViewById(R.id.chamadosListView);
+        Intent origemIntent = getIntent();
+        String nomeFila = origemIntent.getStringExtra("nome_fila");
+        final List <String> chamados = buscarChamados(nomeFila);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,chamados);
+        chamadosListView.setAdapter(adapter);
+
+        chamadosListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent (ListaChamadosActivity.this, DetalhesChamadoActivity.class );
+                intent.putExtra("chamado_escolhido", chamados.get(position));
+                startActivity(intent);
+            }
+        });
 
     }
-    public List<String> geraListaChamados(){
+    public List<String> gerarListaChamados(){
         ArrayList<String> lista = new ArrayList<>();
         lista.add("Desktops: Computador da secretária quebrado.");
         lista.add("Telefonia: Telefone não funciona.");
@@ -39,4 +61,20 @@ public class ListaChamadosActivity extends AppCompatActivity {
         lista.add("Novos Projetos: ferramenta EMM");
         return lista;
     }
+    public List<String> buscarChamados(String chave){
+        List<String> lista = gerarListaChamados();
+        if (chave == null || chave.length() == 0){
+            return lista;
+        }
+        else {
+            List<String> subLista = new ArrayList<>();
+            for(String nome:lista){
+                if(nome.toUpperCase().contains(chave.toUpperCase())){
+                    subLista.add(nome);
+                }
+            }
+            return subLista;
+        }
+    }
+
 }
